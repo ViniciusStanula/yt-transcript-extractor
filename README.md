@@ -55,7 +55,7 @@ GitHub enforces a hard 100 MB per-file limit, and the next model up (`base`) exc
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/ViniciusStanula/yt-transcript-extractor/blob/main/app.py
+git clone https://github.com/ViniciusStanula/yt-transcript-extractor.git
 cd yt-transcript-extractor
 ```
 
