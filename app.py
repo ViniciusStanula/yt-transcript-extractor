@@ -226,6 +226,7 @@ st.markdown(
 # ---------------------------------------------------------------------------
 # Currently only tiny (~39 MB) is committed to the repository — safely under
 # GitHub's 100 MB per-file hard limit.
+# base exceeded the limit on disk and is excluded for now.
 
 GITHUB_SAFE_MODELS: dict[str, dict] = {
     "tiny": {
@@ -238,6 +239,8 @@ GITHUB_SAFE_MODELS: dict[str, dict] = {
 }
 
 # Cache directory used by the pre-download script and by Whisper at runtime.
+# This folder is listed in .gitignore — it stores downloaded weights locally
+# without polluting the Git history.
 WHISPER_CACHE_DIR = Path(__file__).parent / ".whisper_cache"
 
 
@@ -287,6 +290,8 @@ def _ensure_dependencies() -> None:
 def _load_whisper_model(model_size: str):
     import whisper
 
+    # Prefer the local cache directory so we never re-download at inference
+    # time; fall back to Whisper's default location if not found there.
     local_path = WHISPER_CACHE_DIR / f"{model_size}.pt"
     if local_path.exists():
         return whisper.load_model(model_size, download_root=str(WHISPER_CACHE_DIR))
@@ -603,8 +608,8 @@ def main() -> None:
         st.markdown(
             '<div class="app-header">'
             "<h1>YouTube Transcript Extractor</h1>"
-            '<p class="byline">By '
-            '<a href="https://www.linkedin.com/in/vinicius-stanula/?locale=en-US">Vinicius Stanula</a>'
+            '<p class="byline">Powered by '
+            '<a href="https://github.com/openai/whisper">OpenAI Whisper</a>'
             " · built with Streamlit 🎈</p>"
             "</div>",
             unsafe_allow_html=True,
@@ -620,26 +625,16 @@ def main() -> None:
 
         _section_divider("Whisper model")
 
-        # ── Model selector (GitHub-safe models only) ──────────────────────────
-        # small / medium / large exceed GitHub's 100 MB file-size limit and are
-        # therefore not available in this deployment.  tiny and base are
-        # pre-downloaded into .whisper_cache/ via _ensure_whisper_models_cached().
-        model_size = st.selectbox(
-            "Model size:",
-            list(GITHUB_SAFE_MODELS.keys()),   # ["tiny", "base"]
-            index=1,                            # default → "base"
-            help=(
-                "**tiny** (~39 MB) — the only model currently available in this deployment.\n\n"
-                "_More models (base, small, and newer architectures) are planned "
-                "for a future release via Git LFS._"
-            ),
-        )
-
+        # Only tiny is available right now — a selectbox requires 2+ options,
+        # so we hard-code the model and show a simple info label instead.
+        model_size = "tiny"
         meta = GITHUB_SAFE_MODELS[model_size]
         st.markdown(
-            f'<p style="font-size:0.75rem;color:{meta["color"]};margin-top:-0.3rem">'
-            f'{meta["speed_hint"]} &nbsp;·&nbsp; ~{meta["size_mb"]} MB &nbsp;·&nbsp; {meta["params"]} params'
-            f"</p>",
+            f'<p style="font-size:0.85rem;color:{meta["color"]}">'
+            f'🤖 Model: <strong>{model_size}</strong> &nbsp;·&nbsp; ~{meta["size_mb"]} MB'
+            f'&nbsp;·&nbsp; {meta["params"]} params</p>'
+            f'<p style="font-size:0.72rem;color:var(--muted);margin-top:-0.3rem">'
+            f"More models coming soon via Git LFS.</p>",
             unsafe_allow_html=True,
         )
 
