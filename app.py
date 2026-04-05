@@ -608,8 +608,8 @@ def main() -> None:
         st.markdown(
             '<div class="app-header">'
             "<h1>YouTube Transcript Extractor</h1>"
-            '<p class="byline">Powered by '
-            '<a href="https://github.com/openai/whisper">OpenAI Whisper</a>'
+            '<p class="byline">By '
+            '<a href="https://www.linkedin.com/in/vinicius-stanula/?locale=en-US">Vinicius Stanula</a>'
             " · built with Streamlit 🎈</p>"
             "</div>",
             unsafe_allow_html=True,
