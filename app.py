@@ -1,23 +1,3 @@
-#!/usr/bin/env python3
-"""
-YouTube Transcript Extractor — Streamlit Web App
--------------------------------------------------
-Extracts English speech from YouTube videos using OpenAI Whisper.
-Supports single and batch video processing with in-app display
-and downloadable transcripts.
-
-GitHub model policy
--------------------
-Only the **tiny** (~39 MB) and **base** (~74 MB) Whisper models are committed
-to this repository — both are under GitHub's 100 MB per-file hard limit.
-They live in .whisper_cache/ which IS tracked by Git (not in .gitignore).
-
-Larger models (small ~244 MB, medium ~769 MB, large ~1.55 GB) must never
-be committed — they exceed GitHub's hard file-size limit.
-
-Requirements:
-    pip install streamlit yt-dlp openai-whisper moviepy scipy numpy
-"""
 import gc
 import shutil
 import tempfile
@@ -246,8 +226,6 @@ st.markdown(
 # ---------------------------------------------------------------------------
 # Currently only tiny (~39 MB) is committed to the repository — safely under
 # GitHub's 100 MB per-file hard limit.
-# base exceeded the limit on disk and is excluded for now.
-# Roadmap: add larger/newer models via Git LFS and a Gemini summarisation layer.
 
 GITHUB_SAFE_MODELS: dict[str, dict] = {
     "tiny": {
@@ -260,8 +238,6 @@ GITHUB_SAFE_MODELS: dict[str, dict] = {
 }
 
 # Cache directory used by the pre-download script and by Whisper at runtime.
-# This folder is listed in .gitignore — it stores downloaded weights locally
-# without polluting the Git history.
 WHISPER_CACHE_DIR = Path(__file__).parent / ".whisper_cache"
 
 
@@ -311,8 +287,6 @@ def _ensure_dependencies() -> None:
 def _load_whisper_model(model_size: str):
     import whisper
 
-    # Prefer the local cache directory so we never re-download at inference
-    # time; fall back to Whisper's default location if not found there.
     local_path = WHISPER_CACHE_DIR / f"{model_size}.pt"
     if local_path.exists():
         return whisper.load_model(model_size, download_root=str(WHISPER_CACHE_DIR))
@@ -629,8 +603,8 @@ def main() -> None:
         st.markdown(
             '<div class="app-header">'
             "<h1>YouTube Transcript Extractor</h1>"
-            '<p class="byline">Powered by '
-            '<a href="https://github.com/openai/whisper">OpenAI Whisper</a>'
+            '<p class="byline">By '
+            '<a href="https://www.linkedin.com/in/vinicius-stanula/?locale=en-US">Vinicius Stanula</a>'
             " · built with Streamlit 🎈</p>"
             "</div>",
             unsafe_allow_html=True,
